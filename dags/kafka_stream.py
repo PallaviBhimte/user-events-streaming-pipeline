@@ -2,6 +2,8 @@ from datetime import datetime
 from airflow import DAG
 import json
 import uuid
+
+import time
 from airflow.operators.python import PythonOperator
     
 default_args = {
@@ -20,7 +22,7 @@ def get_data():
 def format_data(res):
     data = {}
     location = res['location']
-    data['id'] = uuid.uuid4()
+    data['id'] = str(uuid.uuid4())
     data['first_name'] = res['name']['first']
     data['last_name'] = res['name']['last']
     data['gender'] = res['gender']
@@ -36,9 +38,25 @@ def format_data(res):
     return data
 
 def stream_data():
+    from kafka import KafkaProducer
     res = get_data()
     res = format_data(res)
-    print(json.dumps(res, indent = 3))
+    producer = KafkaProducer(bootstrap_servers=['broker:29092'], max_block_ms=5000)
+    producer.send('users_created', json.dumps(res).encode('utf-8'))
+    producer.flush()
+
+with DAG('user_automation',
+         default_args=default_args,
+         schedule_interval='@daily',
+         catchup=False) as dag:
+
+    streaming_task = PythonOperator(
+        task_id='stream_data_from_api',
+        python_callable=stream_data
+    )
+
+if __name__ == '__main__':
+    stream_data()
 
 
 
