@@ -1,0 +1,11 @@
+# Data source
+requests==2.32.3
+
+# Kafka producer (Airflow DAG)
+kafka-python==3.0.11
+
+# Spark streaming job
+pyspark==3.4.1
+
+# Cassandra sink
+cassandra-driver==3.30.1
