@@ -18,9 +18,9 @@ The [randomuser.me](https://randomuser.me/) API stands in for a real sign-up ser
 
 ---
 
-## Input and Output
+## Data Transformation
 
-### Input: raw API response
+### Before: raw API response
 
 The source returns one user per request as **nested JSON**, roughly 1 KB per record. Many fields are not needed, and the useful values sit two or three levels deep.
 
@@ -58,7 +58,7 @@ The source returns one user per request as **nested JSON**, roughly 1 KB per rec
 }
 ```
 
-### Output: flattened record in Cassandra
+### After: cleaned record in Cassandra
 
 The pipeline keeps only the useful fields, flattens the nesting and assigns a unique ID. This is what a stored row looks like:
 
@@ -78,7 +78,7 @@ The pipeline keeps only the useful fields, flattens the nesting and assigns a un
 }
 ```
 
-### What the transformation does
+### Field mapping
 
 | Transformation | Before | After |
 |---|---|---|
@@ -181,7 +181,6 @@ This launches Zookeeper, Kafka, Schema Registry, Control Center, Airflow (webser
 python3.11 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-pip install pyspark==3.4.1 cassandra-driver
 ```
 
 ### 3. Produce events to Kafka
